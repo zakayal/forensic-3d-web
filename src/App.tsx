@@ -1,7 +1,7 @@
 // src/App.tsx
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 
-import { App as AntdApp, ConfigProvider } from 'antd'
+import { App as AntdApp } from 'antd'
 
 import HomePage from './pages/HomePage/HomePage';
 import InjuryManagementPage from './pages/InjuryManagementPage';

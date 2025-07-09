@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Modal, Space, Table, Form, Radio, DatePicker, Select } from 'antd';
+import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';//导入图标
 import styles from './InjuryManagementPage.module.css';
 
 const { Search } = Input;
@@ -33,13 +34,42 @@ const InjuryManagementPage = () => {
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   // 控制模态框的显示与隐藏
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
+  // 添加state 来追踪key的身份证是否可见
+  const [visibleIdCardKey, setVisibleIdCardKey] = useState<string | null>(null)
 
   const columns = [
     { title: '序号', dataIndex: 'id', key: 'id' },
     { title: '被鉴伤人姓名', dataIndex: 'name', key: 'name' },
     { title: '鉴定人姓名', dataIndex: 'expert', key: 'expert' },
     { title: '性别', dataIndex: 'gender', key: 'gender' },
-    { title: '身份证号', dataIndex: 'idCard', key: 'idCard' },
+    { 
+      title: '身份证号', 
+      dataIndex: 'idCard', 
+      key: 'idCard', 
+      render: (text:string,record: InjuryRecord) => {
+        // 判断当前行的身份证是否应该可见
+        const isVisible = visibleIdCardKey === record.key
+
+        // 脱敏逻辑
+        const maskedText = `${text.substring(0,6)}************`
+
+        const toggleVisibility = ()=> {
+          // 如果已经可见，在点击就隐藏：否则就显示
+          setVisibleIdCardKey(isVisible ? null : record.key)
+        }
+
+        return (
+          <Space>
+            <span>{isVisible ? text : maskedText}</span>
+            <Button
+              type='text'
+              icon={isVisible ? <EyeInvisibleOutlined/> : <EyeOutlined/>}
+              onClick={toggleVisibility}
+            />
+          </Space>
+        )
+      }
+    },
     { title: '受伤时间', dataIndex: 'injuryTime', key: 'injuryTime' },
     { title: '鉴伤时间', dataIndex: 'assessmentTime', key: 'assessmentTime' },
     {
