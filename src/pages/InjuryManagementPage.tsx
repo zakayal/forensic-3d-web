@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Input, Modal, Space, Table } from 'antd';
+import { Button, Input, Modal, Space, Table, Form, Radio, DatePicker, Select } from 'antd';
 import styles from './InjuryManagementPage.module.css';
 
 const { Search } = Input;
+// 获取表单实例
 
 interface InjuryRecord {
   key: string;
@@ -23,6 +24,8 @@ const mockApiData: InjuryRecord[] = [
 ];
 
 const InjuryManagementPage = () => {
+
+  const [form] = Form.useForm()
 
   const [tableData, setTableData] = useState<InjuryRecord[]>([])
   const [loading, setLoading] = useState<boolean>(false)
@@ -138,7 +141,83 @@ const InjuryManagementPage = () => {
         onCancel={handleModalCancel}
         footer={null}
       >
-        <p>未来的表单区域</p>
+        <Form
+          form={form} //将创建的form实例与Form组件关联
+          layout='vertical' //标签在输入框上方
+          onFinish={(values) => {
+            // onFinish 只会在所有校验都通过后触发
+            console.log('表单校验成功,得到的数据：', values);
+            // 执行提交数据的逻辑
+          }}
+        >
+          <Form.Item label="姓名" name="name" rules={[{ required: true, message: '请输入姓名' }]}>
+            <Input placeholder='请输入姓名' />
+          </Form.Item>
+
+          <Form.Item label="性别" name="gender" rules={[{ required: true, message: '请输入性别' }]}>
+            <Radio.Group>
+              <Radio value='男'>男</Radio>
+              <Radio value='女'>女</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          <Form.Item label="年龄" name="age" rules={[{ required: true, message: '请输入年龄' }]}>
+            <Input placeholder="请输入年龄" type="number" />
+          </Form.Item>
+
+          <Form.Item label="身高(cm)" name="height" rules={[{ required: true, message: '请输入身高' }]}>
+            <Input placeholder="请输入身高" type="number" suffix="cm" />
+          </Form.Item>
+
+          <Form.Item label="体重(kg)" name="weight" rules={[{ required: true, message: '请输入体重' }]}>
+            <Input placeholder="请输入体重" type="number" suffix="kg" />
+          </Form.Item>
+          <Form.Item
+            label="身份证号"
+            name="idCard"
+            rules={[
+              { required: true, message: '请输入身份证号' },
+              { len: 18, message: '身份证号必须为18位' }
+            ]}
+          >
+            <Input placeholder='请输入身份证号' />
+          </Form.Item>
+
+          <Form.Item label="户籍地址" name="address">
+            <Input placeholder="请输入户籍地址" />
+          </Form.Item>
+
+          <Form.Item label="受伤时间" name="injuryTime" rules={[{ required: true, message: '请选择受伤时间' }]}>
+            <DatePicker showTime style={{ width: '100%' }} />
+          </Form.Item>
+
+          <Form.Item label='鉴定人' name="expertId">
+            <Select placeholder="请选择鉴定人">
+              <Select.Option value="1">李医生</Select.Option>
+              <Select.Option value="2">王医生</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="案件描述" name="caseDescription">
+            <Input.TextArea rows={4} placeholder="请输入案件描述" />
+          </Form.Item>
+
+          <Form.Item label="委托单位" name="clientUnit">
+            <Input placeholder="请输入委托单位" />
+          </Form.Item>
+
+          {/* 表单提交 */}
+          <Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                确定
+              </Button>
+              <Button onClick={handleModalCancel}>
+                取消
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );
