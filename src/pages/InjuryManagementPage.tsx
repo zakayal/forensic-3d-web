@@ -1,6 +1,6 @@
-import { useState,useEffect } from 'react';
-import { Link } from 'react-router-dom'; 
-import { Button, Input, Space, Table } from 'antd';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Button, Input, Modal, Space, Table } from 'antd';
 import styles from './InjuryManagementPage.module.css';
 
 const { Search } = Input;
@@ -18,8 +18,8 @@ interface InjuryRecord {
 
 // 模拟的api数据
 const mockApiData: InjuryRecord[] = [
-    { key: '1', id: 1, name: '张三', expert: '李医生', gender: '男', idCard: '110101...', injuryTime: '2025-07-10 10:00', assessmentTime: '2025-07-11 14:30' },
-    { key: '2', id: 2, name: '李四', expert: '王医生', gender: '女', idCard: '220202...', injuryTime: '2025-07-12 09:00', assessmentTime: '2025-07-12 11:00' },
+  { key: '1', id: 1, name: '张三', expert: '李医生', gender: '男', idCard: '110101...', injuryTime: '2025-07-10 10:00', assessmentTime: '2025-07-11 14:30' },
+  { key: '2', id: 2, name: '李四', expert: '王医生', gender: '女', idCard: '220202...', injuryTime: '2025-07-12 09:00', assessmentTime: '2025-07-12 11:00' },
 ];
 
 const InjuryManagementPage = () => {
@@ -28,6 +28,8 @@ const InjuryManagementPage = () => {
   const [loading, setLoading] = useState<boolean>(false)
   // 添加搜索关键词state
   const [searchKeyword, setSearchKeyword] = useState<string>('');
+  // 控制模态框的显示与隐藏
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
 
   const columns = [
     { title: '序号', dataIndex: 'id', key: 'id' },
@@ -50,42 +52,51 @@ const InjuryManagementPage = () => {
     },
   ];
 
-  const fetchData = (keyword:string = '')=>{
-    console.log('开始获取数据,关键词：',`${keyword}`);
+  const fetchData = (keyword: string = '') => {
+    console.log('开始获取数据,关键词：', `${keyword}`);
     setLoading(true)
 
-    setTimeout(()=>{
+    setTimeout(() => {
       let resultData = mockApiData
-      
-      if(keyword)
-      {
+
+      if (keyword) {
         resultData = mockApiData.filter(item =>
           item.name.includes(keyword) ||
           item.expert.includes(keyword) ||
           item.idCard.includes(keyword)
         )
       }
-      console.log('数据获取成功',resultData);
+      console.log('数据获取成功', resultData);
       setTableData(resultData)
       setLoading(false)
-    },500)
+    }, 500)
   }
 
   // 搜索函数
-  const handleSearch = (value: string)=>{
+  const handleSearch = (value: string) => {
     setSearchKeyword(value)
     fetchData(value)
   }
 
   // 重置函数
-  const handleReset = ()=>{
+  const handleReset = () => {
     setSearchKeyword('')
     fetchData('')
   }
 
-  useEffect(()=>{
+  // 打开模态框
+  const showModal = () => {
+    setIsModalVisible(true)
+  }
+
+  // 关闭模态框
+  const handleModalCancel = () => {
+    setIsModalVisible(false)
+  }
+
+  useEffect(() => {
     fetchData()
-  },[])
+  }, [])
 
   return (
     <div className={styles.pageContainer}>
@@ -98,17 +109,17 @@ const InjuryManagementPage = () => {
 
       {/* 操作与过滤栏 */}
       <div className={styles.actionBar}>
-        <Button type="primary">新增被鉴伤人</Button>
+        <Button type="primary" onClick={showModal}>新增被鉴伤人</Button>
         <Space>
           <span>关键词搜索:</span>
-          <Search 
-            placeholder="请输入关键词" 
-            style={{ width: 200 }} 
+          <Search
+            placeholder="请输入关键词"
+            style={{ width: 200 }}
             value={searchKeyword} // 将input的值与state绑定
-            onChange={(e)=> setSearchKeyword(e.target.value)} //让输入框成为受控组件
+            onChange={(e) => setSearchKeyword(e.target.value)} //让输入框成为受控组件
             onSearch={handleSearch} //绑定搜索事件
           />
-          <Button onClick={handleReset}>重置</Button> 
+          <Button onClick={handleReset}>重置</Button>
         </Space>
       </div>
 
@@ -120,6 +131,15 @@ const InjuryManagementPage = () => {
           loading={loading}
         />
       </div>
+
+      <Modal
+        title='新增被鉴伤人'
+        open={isModalVisible}
+        onCancel={handleModalCancel}
+        footer={null}
+      >
+        <p>未来的表单区域</p>
+      </Modal>
     </div>
   );
 };
