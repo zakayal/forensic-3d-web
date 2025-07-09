@@ -1,5 +1,3 @@
-/* src/pages/InjuryManagementPage.module.css */
-
 .pageContainer {
   display: flex;
   flex-direction: column;
@@ -34,7 +32,7 @@
 
 .tableContainer {
   flex-grow: 1; /* 让表格区域占据所有剩余的垂直空间 */
-  overflow: auto; /* 如果表格内容过长，出现滚动条 */
+  overflow: hidden;
 }
 
 /* antd 样式覆盖 (可选，用于实现深色主题) */
@@ -59,4 +57,19 @@
 :global(.ant-pagination-next) {
   background: transparent !important;
   color: #d9d9d9 !important;
+}
+
+
+.idCardCell {
+  /* 禁止文本换行 */
+  white-space: nowrap; 
+  /* 让单元格的最小宽度足以容纳18个字符和图标，防止被挤压 */
+  min-width: 220px; 
+}
+
+.toggleVisibilityButton,
+.toggleVisibilityButton:hover,
+.toggleVisibilityButton:focus {
+  /* 直接设置图标的颜色，并覆盖 hover 和 focus 状态，确保颜色稳定 */
+  color: #a6a6a6 !important; 
 }

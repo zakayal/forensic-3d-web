@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Modal, Space, Table, Form, Radio, DatePicker, Select } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';//导入图标
+
 import styles from './InjuryManagementPage.module.css';
 
 const { Search } = Input;
@@ -20,8 +21,8 @@ interface InjuryRecord {
 
 // 模拟的api数据
 const mockApiData: InjuryRecord[] = [
-  { key: '1', id: 1, name: '张三', expert: '李医生', gender: '男', idCard: '110101...', injuryTime: '2025-07-10 10:00', assessmentTime: '2025-07-11 14:30' },
-  { key: '2', id: 2, name: '李四', expert: '王医生', gender: '女', idCard: '220202...', injuryTime: '2025-07-12 09:00', assessmentTime: '2025-07-12 11:00' },
+  { key: '1', id: 1, name: '张三', expert: '李医生', gender: '男', idCard: '110101199003071234', injuryTime: '2025-07-10 10:00', assessmentTime: '2025-07-11 14:30' },
+  { key: '2', id: 2, name: '李四', expert: '王医生', gender: '女', idCard: '220202198805154321', injuryTime: '2025-07-12 09:00', assessmentTime: '2025-07-12 11:00' },
 ];
 
 const InjuryManagementPage = () => {
@@ -42,18 +43,19 @@ const InjuryManagementPage = () => {
     { title: '被鉴伤人姓名', dataIndex: 'name', key: 'name' },
     { title: '鉴定人姓名', dataIndex: 'expert', key: 'expert' },
     { title: '性别', dataIndex: 'gender', key: 'gender' },
-    { 
-      title: '身份证号', 
-      dataIndex: 'idCard', 
-      key: 'idCard', 
-      render: (text:string,record: InjuryRecord) => {
+    {
+      title: '身份证号',
+      dataIndex: 'idCard',
+      key: 'idCard',
+      className: styles.idCardCell,
+      render: (text: string, record: InjuryRecord) => {
         // 判断当前行的身份证是否应该可见
         const isVisible = visibleIdCardKey === record.key
 
         // 脱敏逻辑
-        const maskedText = `${text.substring(0,6)}************`
+        const maskedText = `${text.substring(0, 6)}************`
 
-        const toggleVisibility = ()=> {
+        const toggleVisibility = () => {
           // 如果已经可见，在点击就隐藏：否则就显示
           setVisibleIdCardKey(isVisible ? null : record.key)
         }
@@ -63,8 +65,9 @@ const InjuryManagementPage = () => {
             <span>{isVisible ? text : maskedText}</span>
             <Button
               type='text'
-              icon={isVisible ? <EyeInvisibleOutlined/> : <EyeOutlined/>}
+              icon={isVisible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
               onClick={toggleVisibility}
+              className={styles.toggleVisibilityButton}
             />
           </Space>
         )
@@ -75,13 +78,13 @@ const InjuryManagementPage = () => {
     {
       title: '操作',
       key: 'action',
-      render: (_:any,record: InjuryRecord) => (
+      render: (_: any, record: InjuryRecord) => (
         <Space size="middle">
           <a>查看</a>
           <a>编辑</a>
-          <a 
+          <a
             style={{ color: 'red' }}
-            onClick={()=> handleDelete(record.key)} //绑定onClick事件
+            onClick={() => handleDelete(record.key)} //绑定onClick事件
           >
             删除
           </a>
@@ -134,29 +137,29 @@ const InjuryManagementPage = () => {
   }
 
   // 删除函数，用于删除记录
-  const handleDelete = (key:string)=>{
+  const handleDelete = (key: string) => {
     Modal.confirm({
       title: '确认删除',
       content: '你确定要删除这条记录吗？此操作不可撤销',
       okText: '确认',
       cancelText: '取消',
-      onOk: ()=>{
+      onOk: () => {
         // 用户点击了确认
         console.log(`准备删除 key 为 ${key}的记录`);
 
         setLoading(true)
 
         // 模拟异步删除
-        setTimeout(()=>{
+        setTimeout(() => {
           // 使用filter 创建一个不包含删除项的新数组
           const newData = tableData.filter(item => item.key !== key)
           setTableData(newData)
 
           setLoading(false)
           console.log('删除成功');
-        },500)
+        }, 500)
       },
-      onCancel: ()=>{
+      onCancel: () => {
         // 用户点击了取消
         console.log('取消删除');
       }
@@ -198,6 +201,7 @@ const InjuryManagementPage = () => {
           columns={columns}
           dataSource={tableData}
           loading={loading}
+          scroll={{ x: 'max-content' }}
         />
       </div>
 
