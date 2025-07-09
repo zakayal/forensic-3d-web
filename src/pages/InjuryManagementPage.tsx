@@ -45,11 +45,16 @@ const InjuryManagementPage = () => {
     {
       title: '操作',
       key: 'action',
-      render: () => (
+      render: (_:any,record: InjuryRecord) => (
         <Space size="middle">
           <a>查看</a>
           <a>编辑</a>
-          <a style={{ color: 'red' }}>删除</a>
+          <a 
+            style={{ color: 'red' }}
+            onClick={()=> handleDelete(record.key)} //绑定onClick事件
+          >
+            删除
+          </a>
         </Space>
       ),
     },
@@ -96,6 +101,36 @@ const InjuryManagementPage = () => {
   const handleModalCancel = () => {
     setIsModalVisible(false)
     form.resetFields() //取消时也清空表单
+  }
+
+  // 删除函数，用于删除记录
+  const handleDelete = (key:string)=>{
+    Modal.confirm({
+      title: '确认删除',
+      content: '你确定要删除这条记录吗？此操作不可撤销',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: ()=>{
+        // 用户点击了确认
+        console.log(`准备删除 key 为 ${key}的记录`);
+
+        setLoading(true)
+
+        // 模拟异步删除
+        setTimeout(()=>{
+          // 使用filter 创建一个不包含删除项的新数组
+          const newData = tableData.filter(item => item.key !== key)
+          setTableData(newData)
+
+          setLoading(false)
+          console.log('删除成功');
+        },500)
+      },
+      onCancel: ()=>{
+        // 用户点击了取消
+        console.log('取消删除');
+      }
+    })
   }
 
   useEffect(() => {

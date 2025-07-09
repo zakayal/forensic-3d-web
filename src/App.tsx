@@ -1,5 +1,8 @@
 // src/App.tsx
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
+
+import { App as AntdApp, ConfigProvider } from 'antd'
+
 import HomePage from './pages/HomePage/HomePage';
 import InjuryManagementPage from './pages/InjuryManagementPage';
 import ExpertManagementPage from './pages/ExpertManagementPage';
@@ -9,7 +12,7 @@ import OperationHotKeysPage from './pages/OperationHotKeysPage';
 
 import './App.css';
 
-function App() {
+function AppContent() {
   return (
     <Router>
       <Routes>
@@ -22,6 +25,14 @@ function App() {
       </Routes>
     </Router>
   );
+}
+
+function App(){
+  return (
+    <AntdApp>
+      <AppContent/>
+    </AntdApp>
+  )
 }
 
 export default App;
