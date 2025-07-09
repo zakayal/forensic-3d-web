@@ -211,6 +211,12 @@ const InjuryManagementPage = () => {
         open={isModalVisible}
         onCancel={handleModalCancel}
         footer={null}
+        styles={{
+          body: {
+            maxHeight: 'calc(100vh - 200px)', // 允许内容区最大高度为视窗高度减去200像素
+            overflowY: 'auto', // 当内容超出时，自动显示垂直滚动条
+          }
+        }}
       >
         <Form
           form={form} //将创建的form实例与Form组件关联
@@ -286,10 +292,10 @@ const InjuryManagementPage = () => {
           </Form.Item>
 
           <Form.Item label="受伤时间" name="injuryTime" rules={[{ required: true, message: '请选择受伤时间' }]}>
-            <DatePicker 
-              showTime 
-              style={{ width: '100%' }} 
-              disabledDate={(current)=>{
+            <DatePicker
+              showTime
+              style={{ width: '100%' }}
+              disabledDate={(current) => {
                 return current && current > dayjs().endOf('day')
               }}
             />
