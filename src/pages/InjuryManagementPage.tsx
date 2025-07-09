@@ -211,14 +211,17 @@ const InjuryManagementPage = () => {
         open={isModalVisible}
         onCancel={handleModalCancel}
         footer={null}
+        style={{top:30}}
         styles={{
           body: {
             maxHeight: 'calc(100vh - 200px)', // 允许内容区最大高度为视窗高度减去200像素
-            overflowY: 'auto', // 当内容超出时，自动显示垂直滚动条
+            // 当内容超出时，自动显示垂直滚动条
+            overflowY: 'auto', 
           }
         }}
       >
         <Form
+          className={styles.compactForm}
           form={form} //将创建的form实例与Form组件关联
           layout='vertical' //标签在输入框上方
           onFinish={(values) => {
@@ -309,7 +312,7 @@ const InjuryManagementPage = () => {
           </Form.Item>
 
           <Form.Item label="案件描述" name="caseDescription">
-            <Input.TextArea rows={4} placeholder="请输入案件描述" />
+            <Input.TextArea rows={1} placeholder="请输入案件描述" />
           </Form.Item>
 
           <Form.Item label="委托单位" name="clientUnit">

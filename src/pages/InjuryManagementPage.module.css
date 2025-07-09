@@ -73,3 +73,10 @@
   /* 直接设置图标的颜色，并覆盖 hover 和 focus 状态，确保颜色稳定 */
   color: #a6a6a6 !important; 
 }
+
+
+/* 用于压缩表单垂直间距 */
+.compactForm :global(.ant-form-item) {
+  /* antd 表单项默认的下边距是 24px，我们将其减小到 16px */
+  margin-bottom: 8px;
+}
