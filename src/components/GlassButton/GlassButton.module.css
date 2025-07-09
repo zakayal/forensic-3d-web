@@ -1,0 +1,53 @@
+/* src/components/GlassButton/GlassButton.module.css */
+.glassButton {
+  /* 基础样式 */
+  border: none;
+  border-radius: 20px;
+  width: 180px;
+  height: 180px;
+  cursor: pointer;
+  color: white;
+  
+  /* Flex 布局，让图标和文字垂直排列 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px; /* 图标和文字之间的间距 */
+
+  /* 玻璃效果的核心 */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px); /* 对背景进行模糊，这是毛玻璃效果的关键 */
+  -webkit-backdrop-filter: blur(12px); /* 兼容 Safari */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+  /* 过渡动画，让 hover 效果更平滑 */
+  transition: all 0.2s ease-in-out;
+}
+
+.glassButton:hover {
+  /* 鼠标悬浮时放大并变得更亮 */
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+
+/* 关键！新增这个选择器，直接选中 .iconWrapper 里的 svg 元素 */
+.iconWrapper svg {
+  width: 50px; /* 直接设置我们想要的宽度 */
+  height: 50px; /* 直接设置我们想要的高度 */
+  
+  /* 这是一个非常专业的技巧：
+     currentColor 会让 SVG 的填充色自动继承其父元素的 color 属性。
+     因为我们的按钮文字是白色的 (color: white)，所以 SVG 也会变成白色。
+     这比硬编码 fill: white; 更灵活！
+  */
+  fill: currentColor; 
+}
+
+.label {
+  font-size: 18px;
+  font-weight: 500;
+}

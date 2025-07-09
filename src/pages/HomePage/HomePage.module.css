@@ -1,0 +1,35 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  /* 关键！将容器设置为定位上下文，这样内部的绝对定位元素才会相对于它来定位 */
+  position: relative;
+  overflow: hidden; /* 防止模型过大时出现滚动条 */
+}
+
+/* 删掉之前的 .menuArea 和 .modelArea 样式 */
+
+.menuGrid {
+  /* 关键！将按钮网格设置为绝对定位 */
+  position: absolute;
+  /* 这是经典的绝对定位元素居中技巧 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  /* 以下是之前的网格样式，保持不变 */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  padding: 20px;
+}
+
+/* 关键！为模型创建一个新的包裹样式 */
+.modelWrapper {
+  position: absolute;
+  right: -30px; /* 向右偏移一点，让模型部分“出框” */
+  bottom: -60px;
+  width: 300px; /* 给模型一个具体的尺寸 */
+  height: 700px;
+  opacity: 0.6; /* 让模型半透明，更有融入感 */
+  pointer-events: none; /* 让鼠标可以穿透模型，不会影响点击按钮 */
+}

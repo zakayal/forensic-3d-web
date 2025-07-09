@@ -1,0 +1,62 @@
+/* src/pages/InjuryManagementPage.module.css */
+
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 24px;
+  box-sizing: border-box; /* 确保 padding 不会撑大容器 */
+  background-color: #141414; /* 一个更深的背景色 */
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.backLink {
+  color: #a6a6a6;
+  font-size: 20px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.backLink:hover {
+  color: white;
+}
+
+.actionBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.tableContainer {
+  flex-grow: 1; /* 让表格区域占据所有剩余的垂直空间 */
+  overflow: auto; /* 如果表格内容过长，出现滚动条 */
+}
+
+/* antd 样式覆盖 (可选，用于实现深色主题) */
+:global(.ant-table) {
+  background: transparent !important;
+}
+:global(.ant-table-thead > tr > th) {
+  background: #1f1f1f !important;
+  color: white !important;
+  border-bottom: 1px solid #303030 !important;
+}
+:global(.ant-table-tbody > tr > td) {
+  color: #d9d9d9 !important;
+  border-bottom: 1px solid #303030 !important;
+}
+:global(.ant-table-tbody > tr.ant-table-row:hover > td) {
+  background: #262626 !important;
+}
+:global(.ant-pagination-item),
+:global(.ant-pagination-item-link),
+:global(.ant-pagination-prev),
+:global(.ant-pagination-next) {
+  background: transparent !important;
+  color: #d9d9d9 !important;
+}
