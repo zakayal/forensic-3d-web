@@ -95,6 +95,7 @@ const InjuryManagementPage = () => {
   // 关闭模态框
   const handleModalCancel = () => {
     setIsModalVisible(false)
+    form.resetFields() //取消时也清空表单
   }
 
   useEffect(() => {
@@ -145,9 +146,36 @@ const InjuryManagementPage = () => {
           form={form} //将创建的form实例与Form组件关联
           layout='vertical' //标签在输入框上方
           onFinish={(values) => {
-            // onFinish 只会在所有校验都通过后触发
             console.log('表单校验成功,得到的数据：', values);
-            // 执行提交数据的逻辑
+
+            // 1.开始一个模拟的提交过程
+            setLoading(true)
+
+            // 2.模拟异步提交到服务器的延迟
+            setTimeout(() => {
+              // 3.创建一条新纪录
+              const newRecord: InjuryRecord = {
+                // 模拟生成唯一 ID ，后续真实场景中由后端生成
+                key: `new_${Date.now()}`,
+                id: Date.now(),
+                // antd 的 DataPicker 返回的是  Day.js 对象，需要格式化
+                injuryTime: values.injuryTime.format('YYYY-MM-DD HH:mm:ss'),
+                // 模拟鉴伤时间为当前时间
+                assessmentTime: new Date().toLocaleString(),
+                // 从表单values中获取其他所有数据
+                ...values
+              }
+
+              // 4.使用不可变的方式更新表格数据
+              setTableData(prevData => [newRecord, ...prevData]) //将新纪录添加到数组的最前面
+
+              // 5.收尾工作
+              setLoading(false) //关闭加载状态
+              setIsModalVisible(false) //关闭模态框
+              form.resetFields() //清空表单字段，为下次新增做准备
+
+              console.log('新增成功', newRecord);
+            }, 500)
           }}
         >
           <Form.Item label="姓名" name="name" rules={[{ required: true, message: '请输入姓名' }]}>
