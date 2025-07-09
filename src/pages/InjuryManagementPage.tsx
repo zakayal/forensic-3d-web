@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Modal, Space, Table, Form, Radio, DatePicker, Select } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';//导入图标
+import dayjs from 'dayjs';
 
 import styles from './InjuryManagementPage.module.css';
 
@@ -285,7 +286,13 @@ const InjuryManagementPage = () => {
           </Form.Item>
 
           <Form.Item label="受伤时间" name="injuryTime" rules={[{ required: true, message: '请选择受伤时间' }]}>
-            <DatePicker showTime style={{ width: '100%' }} />
+            <DatePicker 
+              showTime 
+              style={{ width: '100%' }} 
+              disabledDate={(current)=>{
+                return current && current > dayjs().endOf('day')
+              }}
+            />
           </Form.Item>
 
           <Form.Item label='鉴定人' name="expertId">
