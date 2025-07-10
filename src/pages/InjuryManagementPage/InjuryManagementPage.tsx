@@ -4,6 +4,7 @@ import { Button, Input, Modal, Space, Table, Form, Radio, DatePicker, Select } f
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';//导入图标
 import dayjs from 'dayjs';
 
+import { useExperts } from '@/contexts/ExpertContext';
 import styles from './InjuryManagementPage.module.css';
 
 const { Search } = Input;
@@ -31,6 +32,7 @@ const mockApiData: InjuryRecord[] = [
 const InjuryManagementPage = () => {
 
   const [form] = Form.useForm()
+  const { experts } = useExperts()
 
   const [tableData, setTableData] = useState<InjuryRecord[]>([])
   const [loading, setLoading] = useState<boolean>(false)
@@ -314,8 +316,12 @@ const InjuryManagementPage = () => {
 
           <Form.Item label='鉴定人' name="expertId">
             <Select placeholder="请选择鉴定人">
-              <Select.Option value="1">李医生</Select.Option>
-              <Select.Option value="2">王医生</Select.Option>
+              {/* **关键改动：动态渲染下拉选项** */}
+              {experts.map(expert => (
+                <Select.Option key={expert.id} value={expert.name}>
+                  {expert.name}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 

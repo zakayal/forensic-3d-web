@@ -3,6 +3,8 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 
 import { App as AntdApp } from 'antd'
 
+import { ExpertProvider } from './contexts/ExpertContext';
+
 import HomePage from './pages/HomePage/HomePage';
 import InjuryManagementPage from './pages/InjuryManagementPage/InjuryManagementPage';
 import ExpertManagementPage from './pages/ExpertManagementPage/ExpertManagementPage';
@@ -20,17 +22,19 @@ function AppContent() {
         <Route path="/injury-management" element={<InjuryManagementPage />} />
         <Route path="/expert-management" element={<ExpertManagementPage />} />
         <Route path="/system-settings" element={<SystemSettingsPage />} />
-        <Route path='/evidence-management' element={<EvidenceManagementPage />}/>
+        <Route path='/evidence-management' element={<EvidenceManagementPage />} />
         <Route path='/shortcuts' element={<OperationHotKeysPage />} />
       </Routes>
     </Router>
   );
 }
 
-function App(){
+function App() {
   return (
     <AntdApp>
-      <AppContent/>
+      <ExpertProvider>
+        <AppContent />
+      </ExpertProvider>
     </AntdApp>
   )
 }

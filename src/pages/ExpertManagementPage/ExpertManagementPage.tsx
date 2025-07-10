@@ -1,5 +1,3 @@
-// src/pages/ExpertManagementPage/ExpertManagementPage.tsx
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Modal, Space, Table, Form, App } from 'antd';
@@ -7,6 +5,7 @@ import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 
 // 1. 导入我们创建的自定义 Hook
 import { useCrudTable } from '../../hooks/useCrudTables'; 
+import { useExperts } from '@/contexts/ExpertContext';
 import styles from './ExpertManagementPage.module.css';
 
 const { Search } = Input;
@@ -29,6 +28,7 @@ const mockApiData: ExpertRecord[] = [
 const ExpertManagementPage = () => {
   const [form] = Form.useForm();
   const { message } = App.useApp();
+  const {addExpert} = useExperts()
 
   // 2. 核心改动：用一行 useCrudTable 调用替换掉所有旧的 state 和 effect
   const {
@@ -149,6 +149,8 @@ const ExpertManagementPage = () => {
         };
         setTableData(prevData => [newRecord, ...prevData]);
         message.success('新增成功');
+
+        addExpert({name: newRecord.name})
       }
       setLoading(false); // <-- 使用 Hook 的 setLoading
       setIsFormModalOpen(false);
