@@ -208,7 +208,7 @@ const InjuryManagementPage = () => {
           pagination={{
             showSizeChanger: true, // 显示每页条数切换器
             pageSizeOptions: ['2', '10', '20', '50'], // 自定义每页条数选项
-            showTotal: (total, range) => `共 ${total} 条记录`, // 显示总条数
+            showTotal: (total) => `共 ${total} 条记录`, // 显示总条数
             defaultPageSize: 2, // 默认每页显示2条，方便查看效果
           }}
         />

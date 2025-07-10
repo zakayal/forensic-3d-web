@@ -4,8 +4,8 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import { App as AntdApp } from 'antd'
 
 import HomePage from './pages/HomePage/HomePage';
-import InjuryManagementPage from './pages/InjuryManagementPage';
-import ExpertManagementPage from './pages/ExpertManagementPage';
+import InjuryManagementPage from './pages/InjuryManagementPage/InjuryManagementPage';
+import ExpertManagementPage from './pages/ExpertManagementPage/ExpertManagementPage';
 import SystemSettingsPage from './pages/SystemSettingsPage';
 import EvidenceManagementPage from './pages/EvidenceManagementPage';
 import OperationHotKeysPage from './pages/OperationHotKeysPage';
