@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Input, Modal, Space, Table, Form } from 'antd';
+import { Button, Input, Modal, Space, Table, Form, App } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';//导入图标
 import styles from './ExpertManagementPage.module.css';
 
@@ -26,29 +26,34 @@ const mockApiData: ExpertRecord[] = [
 const ExpertManagementPage = () => {
 
   const [form] = Form.useForm()
+  // 获取message实例
+  const { message } = App.useApp()
 
   const [tableData, setTableData] = useState<ExpertRecord[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   // 添加搜索关键词state
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   // 控制模态框的显示与隐藏
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
-  // 添加state 来追踪key的身份证是否可见
+  const [isFormModalOpen, setIsFormModalOpen] = useState<boolean>(false)
+  const [editingRecord, setEditingRecord] = useState<ExpertRecord | null>(null);
+
+  // 添加state 来追踪key的电话是否可见
   const [visibleContact, setVisibleContact] = useState<string | null>(null)
 
   const columns = [
-    { title: '序号', dataIndex: 'id', key: 'id' ,width: 80},
+    { title: '序号', dataIndex: 'id', key: 'id', width: 80 },
     { title: '鉴定人姓名', dataIndex: 'name', key: 'name' },
     { title: '警号', dataIndex: 'badgeNumber', key: 'badgeNumber' },
     { title: '单位名称', dataIndex: 'unitName', key: 'unitName' },
-    { title: '联系方式', 
-      dataIndex: 'contact', 
-      key: 'contact', 
+    {
+      title: '联系方式',
+      dataIndex: 'contact',
+      key: 'contact',
       className: styles.idContact,
-      render:(text: string,record:ExpertRecord) =>{
+      render: (text: string, record: ExpertRecord) => {
         const isVisible = visibleContact === record.key
 
-        const maskedText = `${text.substring(0,3)}****${text.substring(7,11)}`
+        const maskedText = `${text.substring(0, 3)}****${text.substring(7, 11)}`
 
         const toggleVisibility = () => {
           setVisibleContact(isVisible ? null : record.key)
@@ -59,7 +64,7 @@ const ExpertManagementPage = () => {
             <span>{isVisible ? text : maskedText}</span>
             <Button
               type='text'
-              icon={isVisible ? <EyeInvisibleOutlined/> : <EyeOutlined/>}
+              icon={isVisible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
               onClick={toggleVisibility}
               className={styles.toggleVisibilityButton}
             ></Button>
@@ -75,7 +80,7 @@ const ExpertManagementPage = () => {
       width: 150,
       render: (_: any, record: ExpertRecord) => (
         <Space size="middle">
-          <a>编辑</a>
+          <a onClick={()=> showEditModal(record)}>编辑</a>
           <a
             style={{ color: 'blue' }}
             onClick={() => handleDelete(record.key)} //绑定onClick事件
@@ -111,15 +116,55 @@ const ExpertManagementPage = () => {
   }
 
   // 打开模态框
-  const showModal = () => {
-    setIsModalVisible(true)
+  const showAddModal = () => {
+    setEditingRecord(null)
+    form.resetFields()
+    setIsFormModalOpen(true)
   }
 
   // 关闭模态框
   const handleModalCancel = () => {
-    setIsModalVisible(false)
+    setIsFormModalOpen(false)
+    setEditingRecord(null)
     form.resetFields() //取消时也清空表单
   }
+
+  // 编辑模态框
+  const showEditModal = (record: ExpertRecord)=> {
+    setEditingRecord(record)
+    form.setFieldsValue(record)
+    setIsFormModalOpen(true)
+  }
+
+  // 提交表单
+  const handleFormSubmit = (values: Omit<ExpertRecord, 'key' | 'id'>) => {
+    setLoading(true);
+
+    // 模拟异步操作
+    setTimeout(() => {
+      if (editingRecord) {
+        // --- 编辑逻辑 ---
+        setTableData(prevData =>
+          prevData.map(item =>
+            item.key === editingRecord.key ? { ...item, ...values } : item
+          )
+        );
+        message.success('修改成功');
+      } else {
+        // --- 新增逻辑 ---
+        const newRecord: ExpertRecord = {
+          key: `new_${Date.now()}`,
+          id: Math.max(...tableData.map(i => i.id), 0) + 1,
+          ...values,
+        };
+        setTableData(prevData => [newRecord, ...prevData]);
+        message.success('新增成功');
+      }
+      setLoading(false);
+      setIsFormModalOpen(false);
+      setEditingRecord(null);
+    }, 500);
+  };
 
   // 删除函数，用于删除记录
   const handleDelete = (key: string) => {
@@ -166,7 +211,7 @@ const ExpertManagementPage = () => {
 
       {/* 操作与过滤栏 */}
       <div className={styles.actionBar}>
-        <Button type="primary" onClick={showModal}>+ 新增鉴定人</Button>
+        <Button type="primary" onClick={showAddModal}>+ 新增鉴定人</Button>
         <Space>
           <span>关键词搜索:</span>
           <Search
@@ -198,7 +243,7 @@ const ExpertManagementPage = () => {
 
       <Modal
         title='新增鉴定人'
-        open={isModalVisible}
+        open={isFormModalOpen}
         onCancel={handleModalCancel}
         footer={null}
         style={{ top: 30 }}
@@ -214,34 +259,7 @@ const ExpertManagementPage = () => {
           className={styles.compactForm}
           form={form} //将创建的form实例与Form组件关联
           layout='vertical' //标签在输入框上方
-          onFinish={(values) => {
-            console.log('表单校验成功,得到的数据：', values);
-
-            // 1.开始一个模拟的提交过程
-            setLoading(true)
-
-            // 2.模拟异步提交到服务器的延迟
-            setTimeout(() => {
-              // 3.创建一条新纪录
-              const newRecord: ExpertRecord = {
-                // 模拟生成唯一 ID ，后续真实场景中由后端生成
-                key: `new_${Date.now()}`,
-                id: Date.now(),
-                // 从表单values中获取其他所有数据
-                ...values
-              }
-
-              // 4.使用不可变的方式更新表格数据
-              setTableData(prevData => [newRecord, ...prevData]) //将新纪录添加到数组的最前面
-
-              // 5.收尾工作
-              setLoading(false) //关闭加载状态
-              setIsModalVisible(false) //关闭模态框
-              form.resetFields() //清空表单字段，为下次新增做准备
-
-              console.log('新增成功', newRecord);
-            }, 500)
-          }}
+          onFinish= {handleFormSubmit}
         >
           <Form.Item label="鉴定人姓名" name="name" rules={[{ required: true, message: '请输入鉴定人姓名' }]}>
             <Input placeholder='请输入鉴定人姓名' />
@@ -252,7 +270,7 @@ const ExpertManagementPage = () => {
           </Form.Item>
 
           <Form.Item label="单位名称" name="unitName" rules={[{ required: true, message: '请输入单位名称' }]}>
-            <Input placeholder="请输入单位名称"/>
+            <Input placeholder="请输入单位名称" />
           </Form.Item>
 
           <Form.Item label="联系方式" name="contact" rules={[{ required: true, message: '请输入联系方式' }]}>
