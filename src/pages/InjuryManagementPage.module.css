@@ -80,3 +80,10 @@
   /* antd 表单项默认的下边距是 24px，我们将其减小到 16px */
   margin-bottom: 8px;
 }
+
+/* --- 新增：修改分页器总数文本的颜色 --- */
+:global(.ant-pagination-total-text) {
+  color: #a6a6a6 !important; /* 您可以换成任何您喜欢的颜色，例如 #1677ff (Ant Design 蓝) */
+  position: relative; /* 启用相对定位 */
+  top: 1px; /* 向下微调1个像素，您可以根据显示效果调整为 2px */
+}

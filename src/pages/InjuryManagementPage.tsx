@@ -24,6 +24,8 @@ interface InjuryRecord {
 const mockApiData: InjuryRecord[] = [
   { key: '1', id: 1, name: '张三', expert: '李医生', gender: '男', idCard: '110101199003071234', injuryTime: '2025-07-10 10:00', assessmentTime: '2025-07-11 14:30' },
   { key: '2', id: 2, name: '李四', expert: '王医生', gender: '女', idCard: '220202198805154321', injuryTime: '2025-07-12 09:00', assessmentTime: '2025-07-12 11:00' },
+  { key: '3', id: 3, name: '王五', expert: '赵医生', gender: '男', idCard: '33030319920820123X', injuryTime: '2025-07-13 11:00', assessmentTime: '2025-07-13 15:00' },
+  { key: '4', id: 4, name: '赵六', expert: '孙医生', gender: '女', idCard: '44040419851125432Y', injuryTime: '2025-07-14 14:00', assessmentTime: '2025-07-14 16:00' },
 ];
 
 const InjuryManagementPage = () => {
@@ -203,6 +205,12 @@ const InjuryManagementPage = () => {
           dataSource={tableData}
           loading={loading}
           scroll={{ x: 'max-content' }}
+          pagination={{
+            showSizeChanger: true, // 显示每页条数切换器
+            pageSizeOptions: ['2', '10', '20', '50'], // 自定义每页条数选项
+            showTotal: (total, range) => `共 ${total} 条记录`, // 显示总条数
+            defaultPageSize: 2, // 默认每页显示2条，方便查看效果
+          }}
         />
       </div>
 
@@ -211,12 +219,12 @@ const InjuryManagementPage = () => {
         open={isModalVisible}
         onCancel={handleModalCancel}
         footer={null}
-        style={{top:30}}
+        style={{ top: 30 }}
         styles={{
           body: {
             maxHeight: 'calc(100vh - 200px)', // 允许内容区最大高度为视窗高度减去200像素
             // 当内容超出时，自动显示垂直滚动条
-            overflowY: 'auto', 
+            overflowY: 'auto',
           }
         }}
       >
