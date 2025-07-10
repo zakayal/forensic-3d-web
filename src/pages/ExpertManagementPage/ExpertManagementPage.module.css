@@ -59,6 +59,13 @@
   color: #d9d9d9 !important;
 }
 
+.idContact {
+  /* 禁止文本换行 */
+  white-space: nowrap; 
+  /* 让单元格的最小宽度足以容纳18个字符和图标，防止被挤压 */
+  min-width: 220px; 
+}
+
 .toggleVisibilityButton,
 .toggleVisibilityButton:hover,
 .toggleVisibilityButton:focus {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Modal, Space, Table, Form } from 'antd';
-
+import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';//导入图标
 import styles from './ExpertManagementPage.module.css';
 
 const { Search } = Input;
@@ -34,13 +34,40 @@ const ExpertManagementPage = () => {
   // 控制模态框的显示与隐藏
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
   // 添加state 来追踪key的身份证是否可见
+  const [visibleContact, setVisibleContact] = useState<string | null>(null)
 
   const columns = [
     { title: '序号', dataIndex: 'id', key: 'id' ,width: 80},
     { title: '鉴定人姓名', dataIndex: 'name', key: 'name' },
     { title: '警号', dataIndex: 'badgeNumber', key: 'badgeNumber' },
     { title: '单位名称', dataIndex: 'unitName', key: 'unitName' },
-    { title: '联系方式', dataIndex: 'contact', key: 'contact' },
+    { title: '联系方式', 
+      dataIndex: 'contact', 
+      key: 'contact', 
+      className: styles.idContact,
+      render:(text: string,record:ExpertRecord) =>{
+        const isVisible = visibleContact === record.key
+
+        const maskedText = `${text.substring(0,3)}****${text.substring(7,11)}`
+
+        const toggleVisibility = () => {
+          setVisibleContact(isVisible ? null : record.key)
+        }
+
+        return (
+          <Space>
+            <span>{isVisible ? text : maskedText}</span>
+            <Button
+              type='text'
+              icon={isVisible ? <EyeInvisibleOutlined/> : <EyeOutlined/>}
+              onClick={toggleVisibility}
+              className={styles.toggleVisibilityButton}
+            ></Button>
+          </Space>
+        )
+      }
+
+    },
     { title: '地址', dataIndex: 'address', key: 'address' },
     {
       title: '操作',
