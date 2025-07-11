@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Input, Modal, Space, Table, Form, Radio, DatePicker, Select } from 'antd';
+import { Button, Input, Modal, Space, Table, Form, Radio, DatePicker, Select, message } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';//导入图标
 import dayjs from 'dayjs';
 
 import { useExperts } from '@/contexts/ExpertContext';
 import styles from './InjuryManagementPage.module.css';
+
+import { useCrudTable } from '@/hooks/useCrudTables';
 
 const { Search } = Input;
 // 获取表单实例
@@ -34,10 +36,25 @@ const InjuryManagementPage = () => {
   const [form] = Form.useForm()
   const { enabledExperts } = useExperts()
 
-  const [tableData, setTableData] = useState<InjuryRecord[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
-  // 添加搜索关键词state
-  const [searchKeyword, setSearchKeyword] = useState<string>('');
+  const {
+    tableData,
+    loading,
+    searchKeyword,
+    setTableData,
+    setLoading,
+    handleSearch,
+    handleReset,
+    handleDelete,
+    setSearchKeyword,
+  } = useCrudTable<InjuryRecord>({
+    initialData: mockApiData,
+    getKey: (record) => record.key,
+    filterFn: (record, keyword) =>
+      record.name.includes(keyword) ||
+      record.expert.includes(keyword) ||
+      record.idCard.includes(keyword)
+  });
+
   // 控制模态框的显示与隐藏
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
   // 添加state 来追踪key的身份证是否可见
@@ -98,38 +115,6 @@ const InjuryManagementPage = () => {
     },
   ];
 
-  const fetchData = (keyword: string = '') => {
-    console.log('开始获取数据,关键词：', `${keyword}`);
-    setLoading(true)
-
-    setTimeout(() => {
-      let resultData = mockApiData
-
-      if (keyword) {
-        resultData = mockApiData.filter(item =>
-          item.name.includes(keyword) ||
-          item.expert.includes(keyword) ||
-          item.idCard.includes(keyword)
-        )
-      }
-      console.log('数据获取成功', resultData);
-      setTableData(resultData)
-      setLoading(false)
-    }, 500)
-  }
-
-  // 搜索函数
-  const handleSearch = (value: string) => {
-    setSearchKeyword(value)
-    fetchData(value)
-  }
-
-  // 重置函数
-  const handleReset = () => {
-    setSearchKeyword('')
-    fetchData('')
-  }
-
   // 打开模态框
   const showModal = () => {
     setIsModalVisible(true)
@@ -141,39 +126,25 @@ const InjuryManagementPage = () => {
     form.resetFields() //取消时也清空表单
   }
 
-  // 删除函数，用于删除记录
-  const handleDelete = (key: string) => {
-    Modal.confirm({
-      title: '确认删除',
-      content: '你确定要删除这条记录吗？此操作不可撤销',
-      okText: '确认',
-      cancelText: '取消',
-      onOk: () => {
-        // 用户点击了确认
-        console.log(`准备删除 key 为 ${key}的记录`);
+  const handleFormSubmit = (values: any) => {
+    setLoading(true);
+    setTimeout(() => {
+      const newRecord: InjuryRecord = {
+        key: `new_${Date.now()}`,
+        id: tableData.length >0 ? Math.max(...tableData.map(i => i.id), 0) + 1 : 1,
+        injuryTime: values.injuryTime.format('YYYY-MM-DD HH:mm:ss'),
+        assessmentTime: new Date().toLocaleString(),
+        ...values,
+      };
 
-        setLoading(true)
+      setTableData(prevData => [newRecord, ...prevData]);
+      message.success('新增成功')
 
-        // 模拟异步删除
-        setTimeout(() => {
-          // 使用filter 创建一个不包含删除项的新数组
-          const newData = tableData.filter(item => item.key !== key)
-          setTableData(newData)
-
-          setLoading(false)
-          console.log('删除成功');
-        }, 500)
-      },
-      onCancel: () => {
-        // 用户点击了取消
-        console.log('取消删除');
-      }
-    })
-  }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
+      setLoading(false);
+      setIsModalVisible(false);
+      form.resetFields();
+    }, 500);
+  };
 
   return (
     <div className={styles.pageContainer}>
@@ -234,38 +205,7 @@ const InjuryManagementPage = () => {
           className={styles.compactForm}
           form={form} //将创建的form实例与Form组件关联
           layout='vertical' //标签在输入框上方
-          onFinish={(values) => {
-            console.log('表单校验成功,得到的数据：', values);
-
-            // 1.开始一个模拟的提交过程
-            setLoading(true)
-
-            // 2.模拟异步提交到服务器的延迟
-            setTimeout(() => {
-              // 3.创建一条新纪录
-              const newRecord: InjuryRecord = {
-                // 模拟生成唯一 ID ，后续真实场景中由后端生成
-                key: `new_${Date.now()}`,
-                id: Date.now(),
-                // antd 的 DataPicker 返回的是  Day.js 对象，需要格式化
-                injuryTime: values.injuryTime.format('YYYY-MM-DD HH:mm:ss'),
-                // 模拟鉴伤时间为当前时间
-                assessmentTime: new Date().toLocaleString(),
-                // 从表单values中获取其他所有数据
-                ...values
-              }
-
-              // 4.使用不可变的方式更新表格数据
-              setTableData(prevData => [newRecord, ...prevData]) //将新纪录添加到数组的最前面
-
-              // 5.收尾工作
-              setLoading(false) //关闭加载状态
-              setIsModalVisible(false) //关闭模态框
-              form.resetFields() //清空表单字段，为下次新增做准备
-
-              console.log('新增成功', newRecord);
-            }, 500)
-          }}
+          onFinish={handleFormSubmit}
         >
           <Form.Item label="姓名" name="name" rules={[{ required: true, message: '请输入姓名' }]}>
             <Input placeholder='请输入姓名' />
