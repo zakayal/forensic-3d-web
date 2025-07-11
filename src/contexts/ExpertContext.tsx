@@ -1,39 +1,25 @@
 import { createContext, useState,useMemo, useContext} from 'react';
 import {type ReactNode} from 'react'
 
+import { mockApiData, type ExpertData } from '@/data/expertData';
+
 // 定义在Context中共享的数据结构
-interface Expert {
-  id: string; // 使用 string 类型的 key/id
-  name: string;
-  status: 'enabled' | 'disabled'
-}
+interface Expert extends ExpertData{}
 
 interface ExpertContextType {
   experts: Expert[];
   enabledExperts: Expert[];
-  addExpert: (expert: Omit<Expert, 'id'>) => void;
+  addExpert: (expert: Expert) => void;
   setExperts: React.Dispatch<React.SetStateAction<Expert[]>>
 }
 // 创建Context
 const ExpertContext = createContext<ExpertContextType | undefined>(undefined);
 
-// 模拟的鉴定人数据
-const initialExpertsData: Expert[] = [
-  { id: '1', name: '管理员', status: 'enabled' },
-  { id: '2', name: '老师a', status: 'enabled' },
-];
-
 // 创建 Provider 组件
 export const ExpertProvider = ({ children }: { children: ReactNode }) => {
-  const [experts, setExperts] = useState<Expert[]>(initialExpertsData);
+  const [experts, setExperts] = useState<Expert[]>(mockApiData);
 
-  // 定义添加鉴定人的逻辑
-  const addExpert = (expertData: Omit<Expert, 'id'>) => {
-    const newExpert: Expert = {
-      id: `expert_${Date.now()}`, // 生成唯一 ID
-      ...expertData,
-    };
-    // 使用函数式更新，保证状态更新的可靠性
+  const addExpert = (newExpert: Expert) => {
     setExperts(prevExperts => [...prevExperts, newExpert]);
   };
 

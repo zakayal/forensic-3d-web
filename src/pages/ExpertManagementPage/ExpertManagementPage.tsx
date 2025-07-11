@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Input, Modal, Space, Table, Form, App,Tag } from 'antd';
+import { Button, Input, Modal, Space, Table, Form, App } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 
 // 1. 导入我们创建的自定义 Hook
@@ -8,23 +8,9 @@ import { useCrudTable } from '../../hooks/useCrudTables';
 import { useExperts } from '@/contexts/ExpertContext';
 import styles from './ExpertManagementPage.module.css';
 
+import { mockApiData,type ExpertData as ExpertRecord } from '@/data/expertData';
+
 const { Search } = Input;
-
-interface ExpertRecord {
-  key: string;
-  id: number;
-  name: string;
-  badgeNumber: string;
-  unitName: string;
-  contact: string;
-  address: string;
-  status: 'enabled' | 'disabled';
-}
-
-const mockApiData: ExpertRecord[] = [
-  { key: '1', id: 1, name: '管理员', badgeNumber: '00001', unitName: '法医鉴定中心', contact: '13800138000', address: 'XX市公安局A栋501室', status: 'enabled' },
-  { key: '2', id: 2, name: '老师a', badgeNumber: '00002', unitName: '法医鉴定中心', contact: '13800138001', address: 'XX市公安局A栋501室', status: 'enabled' },
-];
 
 const ExpertManagementPage = () => {
   const [form] = Form.useForm();
@@ -77,7 +63,7 @@ const ExpertManagementPage = () => {
           setTableData(newData)
 
           const contextData = experts.map(item =>
-            item.id === recordToToggle.key
+            item.key === recordToToggle.key
               ? { ...item, status: newStatus }
               : item
           );
@@ -121,17 +107,6 @@ const ExpertManagementPage = () => {
       }
     },
     { title: '地址', dataIndex: 'address', key: 'address' },
-    {
-      title: '状态', // 新增状态列
-      dataIndex: 'status',
-      key: 'status',
-      width: 100,
-      render: (status: 'enabled' | 'disabled') => (
-        <Tag color={status === 'enabled' ? 'success' : 'default'}>
-          {status === 'enabled' ? '已启用' : '已禁用'}
-        </Tag>
-      ),
-    },
     {
       title: '操作',
       key: 'action',
@@ -187,14 +162,14 @@ const ExpertManagementPage = () => {
       } else {
         const newRecord: ExpertRecord = {
           key: `new_${Date.now()}`,
-          id: Math.max(...tableData.map(i => i.id), 0) + 1,
+          id: tableData.length >0 ? Math.max(...tableData.map(i => i.id), 0) + 1 : 1,
           ...values,
           status:'enabled'
         };
         setTableData(prevData => [newRecord, ...prevData]);
         message.success('新增成功');
 
-        addExpert({ name: newRecord.name,status:'enabled' })
+        addExpert(newRecord)
       }
       setLoading(false); // <-- 使用 Hook 的 setLoading
       setIsFormModalOpen(false);
