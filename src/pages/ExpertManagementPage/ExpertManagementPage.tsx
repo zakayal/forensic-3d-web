@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Input, Modal, Space, Table, Form, App } from 'antd';
+import { Button, Input, Modal, Space, Table, Form, App,Tag } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 
 // 1. 导入我们创建的自定义 Hook
-import { useCrudTable } from '../../hooks/useCrudTables'; 
+import { useCrudTable } from '../../hooks/useCrudTables';
 import { useExperts } from '@/contexts/ExpertContext';
 import styles from './ExpertManagementPage.module.css';
 
@@ -18,45 +18,77 @@ interface ExpertRecord {
   unitName: string;
   contact: string;
   address: string;
+  status: 'enabled' | 'disabled';
 }
 
 const mockApiData: ExpertRecord[] = [
-  { key: '1', id: 1, name: '管理员', badgeNumber: '00001', unitName: '法医鉴定中心', contact: '13800138000', address: 'XX市公安局A栋501室' },
-  { key: '2', id: 2, name: '老师a', badgeNumber: '00002', unitName: '法医鉴定中心', contact: '13800138001', address: 'XX市公安局A栋501室' },
+  { key: '1', id: 1, name: '管理员', badgeNumber: '00001', unitName: '法医鉴定中心', contact: '13800138000', address: 'XX市公安局A栋501室', status: 'enabled' },
+  { key: '2', id: 2, name: '老师a', badgeNumber: '00002', unitName: '法医鉴定中心', contact: '13800138001', address: 'XX市公安局A栋501室', status: 'enabled' },
 ];
 
 const ExpertManagementPage = () => {
   const [form] = Form.useForm();
-  const { message } = App.useApp();
-  const {addExpert} = useExperts()
+  const { message, modal } = App.useApp();
+  const { addExpert, experts, setExperts } = useExperts()
 
   // 2. 核心改动：用一行 useCrudTable 调用替换掉所有旧的 state 和 effect
   const {
     tableData,
     loading,
     searchKeyword,
-    setTableData, // 从 Hook 中获取，用于新增/编辑
-    setLoading,   // 从 Hook 中获取，用于新增/编辑
+    setTableData,
+    setLoading,
     handleSearch,
     handleReset,
-    handleDelete,
     setSearchKeyword,
   } = useCrudTable<ExpertRecord>({
-    // 传入我们这个页面特定的模拟数据
     initialData: mockApiData,
-    // 传入一个函数，告诉 Hook 如何从一条数据中获取唯一的 key
     getKey: (record) => record.key,
-    // 传入自定义的搜索过滤逻辑
-    filterFn: (record, keyword) => 
-      record.name.includes(keyword) || 
-      record.badgeNumber.includes(keyword) || 
+    filterFn: (record, keyword) =>
+      record.name.includes(keyword) ||
+      record.badgeNumber.includes(keyword) ||
       record.unitName.includes(keyword),
   });
 
-  // 3. 保留组件特有的状态（这些逻辑与 CRUD 无关）
   const [isFormModalOpen, setIsFormModalOpen] = useState<boolean>(false);
   const [editingRecord, setEditingRecord] = useState<ExpertRecord | null>(null);
   const [visibleContact, setVisibleContact] = useState<string | null>(null);
+
+  const handelToggleStatus = (recordToToggle: ExpertRecord) => {
+    const isEnabling = recordToToggle.status === 'disabled'
+    const actionText = isEnabling ? '已启用' : '已禁用'
+
+    modal.confirm({
+      title: ` 确认${actionText}`,
+      content: `您确定要${actionText}鉴定人 "${recordToToggle.name}" 吗？`,
+      okText: '确认',
+      cancelText: '取消',
+      onOk: () => {
+        setLoading(true)
+        setTimeout(() => {
+
+          const newStatus: 'enabled' | 'disabled' = isEnabling ? 'enabled' : 'disabled'
+
+          const newData = tableData.map(item =>
+            item.key === recordToToggle.key
+              ? { ...item, status: newStatus }
+              : item
+          )
+          setTableData(newData)
+
+          const contextData = experts.map(item =>
+            item.id === recordToToggle.key
+              ? { ...item, status: newStatus }
+              : item
+          );
+          setExperts(contextData);
+
+          setLoading(false);
+          message.success(`${actionText}成功`);
+        }, 500);
+      }
+    })
+  }
 
   // 4. columns 定义中的 handleDelete 直接使用从 Hook 获取的函数
   const columns = [
@@ -90,6 +122,17 @@ const ExpertManagementPage = () => {
     },
     { title: '地址', dataIndex: 'address', key: 'address' },
     {
+      title: '状态', // 新增状态列
+      dataIndex: 'status',
+      key: 'status',
+      width: 100,
+      render: (status: 'enabled' | 'disabled') => (
+        <Tag color={status === 'enabled' ? 'success' : 'default'}>
+          {status === 'enabled' ? '已启用' : '已禁用'}
+        </Tag>
+      ),
+    },
+    {
       title: '操作',
       key: 'action',
       width: 150,
@@ -99,15 +142,15 @@ const ExpertManagementPage = () => {
           <a
             style={{ color: 'blue' }}
             // 直接调用 Hook 返回的 handleDelete
-            onClick={() => handleDelete(record.key)}
+            onClick={() => handelToggleStatus(record)}
           >
-            删除
+            {record.status === 'enabled' ? '已启用' : '已禁用'}
           </a>
         </Space>
       ),
     },
   ];
-  
+
   // 5. fetchData, useEffect 等函数已被移除，因为它们的逻辑都在 Hook 里了
 
   // --- 组件特有的方法 ---
@@ -130,7 +173,7 @@ const ExpertManagementPage = () => {
   };
 
   // 6. 更新表单提交函数，使用从 Hook 获取的 setLoading 和 setTableData
-  const handleFormSubmit = (values: Omit<ExpertRecord, 'key' | 'id'>) => {
+  const handleFormSubmit = (values: Omit<ExpertRecord, 'key' | 'id' |'status'>) => {
     setLoading(true); // <-- 使用 Hook 的 setLoading
 
     setTimeout(() => {
@@ -146,11 +189,12 @@ const ExpertManagementPage = () => {
           key: `new_${Date.now()}`,
           id: Math.max(...tableData.map(i => i.id), 0) + 1,
           ...values,
+          status:'enabled'
         };
         setTableData(prevData => [newRecord, ...prevData]);
         message.success('新增成功');
 
-        addExpert({name: newRecord.name})
+        addExpert({ name: newRecord.name,status:'enabled' })
       }
       setLoading(false); // <-- 使用 Hook 的 setLoading
       setIsFormModalOpen(false);

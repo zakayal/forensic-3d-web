@@ -32,7 +32,7 @@ const mockApiData: InjuryRecord[] = [
 const InjuryManagementPage = () => {
 
   const [form] = Form.useForm()
-  const { experts } = useExperts()
+  const { enabledExperts } = useExperts()
 
   const [tableData, setTableData] = useState<InjuryRecord[]>([])
   const [loading, setLoading] = useState<boolean>(false)
@@ -317,7 +317,7 @@ const InjuryManagementPage = () => {
           <Form.Item label='鉴定人' name="expertId">
             <Select placeholder="请选择鉴定人">
               {/* **关键改动：动态渲染下拉选项** */}
-              {experts.map(expert => (
+              {enabledExperts.map(expert => (
                 <Select.Option key={expert.id} value={expert.name}>
                   {expert.name}
                 </Select.Option>

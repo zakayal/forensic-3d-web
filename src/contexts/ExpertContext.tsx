@@ -1,32 +1,31 @@
-import { createContext, useState, useContext,type ReactNode } from 'react';
+import { createContext, useState,useMemo, useContext} from 'react';
+import {type ReactNode} from 'react'
 
-// 1. 定义我们要在 Context 中共享的数据类型
-// 我们需要鉴定人列表，以及添加新鉴定人的方法
+// 定义在Context中共享的数据结构
 interface Expert {
   id: string; // 使用 string 类型的 key/id
   name: string;
+  status: 'enabled' | 'disabled'
 }
 
 interface ExpertContextType {
   experts: Expert[];
+  enabledExperts: Expert[];
   addExpert: (expert: Omit<Expert, 'id'>) => void;
+  setExperts: React.Dispatch<React.SetStateAction<Expert[]>>
 }
-
-// 2. 创建 Context，并提供一个默认值
-// 默认值通常用于测试或在没有 Provider 的情况下防止应用崩溃
+// 创建Context
 const ExpertContext = createContext<ExpertContextType | undefined>(undefined);
 
-// 3. 创建 Provider 组件
-// 这个组件将包裹我们的整个应用（或部分应用）
+// 模拟的鉴定人数据
+const initialExpertsData: Expert[] = [
+  { id: '1', name: '管理员', status: 'enabled' },
+  { id: '2', name: '老师a', status: 'enabled' },
+];
+
+// 创建 Provider 组件
 export const ExpertProvider = ({ children }: { children: ReactNode }) => {
-  // 在 Provider 内部，我们使用 useState 来真正地存储和管理状态
-  const [experts, setExperts] = useState<Expert[]>([
-    // 提供一些初始数据，模拟从API获取
-    { id: '1', name: '李医生' },
-    { id: '2', name: '王医生' },
-    { id: '3', name: '赵医生' },
-    { id: '4', name: '孙医生' },
-  ]);
+  const [experts, setExperts] = useState<Expert[]>(initialExpertsData);
 
   // 定义添加鉴定人的逻辑
   const addExpert = (expertData: Omit<Expert, 'id'>) => {
@@ -36,11 +35,14 @@ export const ExpertProvider = ({ children }: { children: ReactNode }) => {
     };
     // 使用函数式更新，保证状态更新的可靠性
     setExperts(prevExperts => [...prevExperts, newExpert]);
-    console.log('New expert added to context:', newExpert);
   };
 
+  const enabledExperts = useMemo(() => {
+    return experts.filter(expert => expert.status === 'enabled');
+  }, [experts]);
+
   // value 属性就是要共享给所有子组件的数据和方法
-  const value = { experts, addExpert };
+  const value = { experts, enabledExperts, addExpert, setExperts };
 
   return (
     <ExpertContext.Provider value={value}>
@@ -49,8 +51,7 @@ export const ExpertProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// 4. 创建一个自定义 Hook，简化 Context 的使用
-// 这样其他组件就不需要同时导入 useContext 和 ExpertContext 了
+// 创建一个自定义 Hook
 export const useExperts = () => {
   const context = useContext(ExpertContext);
   if (context === undefined) {
