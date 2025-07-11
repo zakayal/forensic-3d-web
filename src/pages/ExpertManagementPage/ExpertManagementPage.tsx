@@ -115,8 +115,7 @@ const ExpertManagementPage = () => {
         <Space size="middle">
           <a onClick={() => showEditModal(record)}>编辑</a>
           <a
-            style={{ color: 'blue' }}
-            // 直接调用 Hook 返回的 handleDelete
+            style={{ color: record.status === 'enabled' ? 'blue' : 'red' }}
             onClick={() => handelToggleStatus(record)}
           >
             {record.status === 'enabled' ? '已启用' : '已禁用'}
