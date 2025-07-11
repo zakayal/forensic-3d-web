@@ -125,8 +125,6 @@ const ExpertManagementPage = () => {
     },
   ];
 
-  // 5. fetchData, useEffect 等函数已被移除，因为它们的逻辑都在 Hook 里了
-
   // --- 组件特有的方法 ---
   const showAddModal = () => {
     setEditingRecord(null);
